@@ -1,5 +1,8 @@
 package com.tools.watcher;
 
+import com.tools.watcher.application.EnoviaApplication;
+import com.tools.watcher.framework.exceptions.InitializationException;
+
 /**
  *
  */
@@ -14,8 +17,11 @@ public class EntryPoint {
         //Read configuration from properties
 
         //Construct Gui controller based on configuration
-//        GuiController guiController = new EnoviaApplication();
-//        guiController.build()
+        try {
+            EnoviaApplication.launch();
+        } catch (InitializationException e) {
+            e.printStackTrace();
+        }
 //
 //        GuiController.build()
 //        if (guiController.build()){

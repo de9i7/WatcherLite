@@ -3,5 +3,5 @@ package com.tools.watcher.framework.exceptions;
 /**
  *
  */
-public class ClassValidationException extends Exception {
+public class InitializationException extends Exception {
 }

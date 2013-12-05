@@ -1,6 +1,7 @@
-package com.tools.watcher.gui;
+package com.tools.watcher.application.gui;
 
-import com.tools.watcher.controller.Application;
+import com.tools.watcher.application.controller.FilesystemActionsHandler;
+import com.tools.watcher.framework.ApplicationContext;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,19 +12,19 @@ import java.awt.*;
  */
 public class GuiBuilder extends JFrame {
 
-    private final PropertiesView m_propertiesView;
-    private final Application m_controller;
+    private final JComponent m_propertiesView;
+    private final ApplicationContext m_context;
 
     private JLabel m_messageLabel;
     private JButton m_prepareEtlButton;
 
-    public GuiBuilder(String title, Application controller){
+    public GuiBuilder(String title, ApplicationContext context){
         super(title);
 
-        m_controller = controller;
-//        m_controller.registerView(this);
+        m_context = context;
 
-        m_propertiesView = PropertiesView.getInstance();
+        m_propertiesView = TreeViewBuilder.build(m_context, FilesystemActionsHandler.class);
+        m_propertiesView.setVisible(true);
 
         setNativeLookAndFeel();
 
@@ -55,6 +56,7 @@ public class GuiBuilder extends JFrame {
         messagePanel.add(m_messageLabel);
 
         m_prepareEtlButton = new JButton("PREPARE_ETL_BUTTON");
+
 //        m_prepareEtlButton.setActionCommand();
 //        m_prepareEtlButton.addActionListener(this);
 
@@ -78,7 +80,7 @@ public class GuiBuilder extends JFrame {
         JPanel leftWing = new JPanel(new GridLayout(1,0));
         JPanel rightWing = new JPanel(new GridLayout(1,0));
 
-//        leftWing.add(m_propertiesView.build(m_controller.getPropertyHandler()));
+        leftWing.add(m_propertiesView);
 
         contentPanel.add(leftWing);
         contentPanel.add(rightWing);
@@ -97,19 +99,19 @@ public class GuiBuilder extends JFrame {
     }
 
     /**
-     * Prepares form.
-     * @param title window title.
-     * @param controller
-     */
-//    public static IGui build(String title, Application controller) {
-//        new GuiBuilder(title, controller);
-//    }
-
-    /**
      * TEST MAIN METHOD
      * @param args
      */
     public static void main(String[] args) {
 //        build("Launch", new EnoviaApplication());
+    }
+
+    /**
+     *
+     * @param ctx
+     */
+    public static void build(ApplicationContext ctx) {
+        // TODO: Correct entry point to GuiBuilder
+        new GuiBuilder("Get title from property", ctx);
     }
 }

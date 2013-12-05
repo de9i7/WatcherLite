@@ -1,14 +1,11 @@
-package com.tools.watcher.framework.action.service;
+package com.tools.watcher.framework.action;
 
-import com.tools.watcher.framework.action.AbstractAction;
+import com.tools.watcher.framework.action.annotation.ActionHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -20,9 +17,10 @@ public class ActionFinder {
      * @param packageName
      * @return
      */
-    public static Map<String, AbstractAction> loadActions(String packageName) {
+    public static Map<Class<?>, Object> loadActions(String packageName) {
+        Map<Class<?>, Object> classes = null;
         try {
-            Iterable<Class> classes = getClasses(packageName);
+            classes = getClasses("com.tools.watcher.application.controller");
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -30,7 +28,7 @@ public class ActionFinder {
             e.printStackTrace();
         }
 
-        return null;
+        return classes;
     }
     /**
      *
@@ -39,7 +37,7 @@ public class ActionFinder {
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    protected static Iterable<Class> getClasses(
+    protected static Map<Class<?>, Object> getClasses(
         String packageName
     ) throws ClassNotFoundException, IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -54,9 +52,9 @@ public class ActionFinder {
         }
 
         // Search classes inside the directory
-        List<Class> classes = new ArrayList<Class>();
+        Map<Class<?>, Object> classes = new HashMap<Class<?>, Object>();
         for (File dir : dirs) {
-            classes.addAll(findClasses(dir, packageName));
+            classes.putAll(findClasses(dir, packageName));
         }
         return classes;
     }
@@ -68,8 +66,8 @@ public class ActionFinder {
      * @return
      * @throws ClassNotFoundException
      */
-    private static List<Class> findClasses(File dir, String packageName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
+    private static Map<Class<?>, Object> findClasses(File dir, String packageName) throws ClassNotFoundException {
+        Map<Class<?>, Object> classes = new HashMap<Class<?>, Object>();
         if (!dir.exists()) {
             return classes;
         }
@@ -78,9 +76,13 @@ public class ActionFinder {
 
         for (File file : files) {
             if (file.isDirectory()) {
-                classes.addAll(findClasses(file, packageName + "." + file.getName()));
+                classes.putAll(findClasses(file, packageName + "." + file.getName()));
             } else if (file.getName().endsWith(".class")) {
-                classes.add(Class.forName(packageName + "." + file.getName().substring(0, file.getName().length() - 6)));
+                Class<?> clazz = Class.forName(packageName + "." + file.getName().substring(0, file.getName().length() - 6));
+                if (clazz.getAnnotation(ActionHandler.class) != null) {
+                    System.out.println("Handler : " + clazz.getName());
+                    classes.put(clazz, null);
+                }
             }
         }
         return classes;
@@ -91,10 +93,12 @@ public class ActionFinder {
     }
 
     private void run() {
-        String currentPackage = ActionFinder.class.getPackage().getName();
+//        String currentPackage = ActionFinder.class.getPackage().getName();
+        String currentPackage = "com.tools.watcher.application";
+
         System.out.println("Package: " + currentPackage);
         try {
-            Iterable<Class> classes = getClasses(currentPackage);
+            Map<Class<?>, Object> classes = getClasses(currentPackage);
             System.out.println("Classses: " + classes);
         } catch (ClassNotFoundException e) {
             System.out.println("Class not found");

@@ -1,8 +1,13 @@
 package com.tools.watcher.framework;
 
-import com.tools.watcher.framework.action.service.ActionService;
+import com.tools.watcher.framework.action.api.ActionService;
 import com.tools.watcher.framework.configuration.Configuration;
+import com.tools.watcher.framework.context.GuiContext;
+import com.tools.watcher.framework.exceptions.InitializationException;
 import com.tools.watcher.framework.exceptions.InvalidPropertyException;
+import com.tools.watcher.framework.logger.LoggerService;
+
+import javax.management.remote.rmi.RMIConnection;
 
 /**
  * This class contains primary framework services instances.
@@ -13,37 +18,73 @@ public class ApplicationContext {
     /**
      * Configuration container
      */
-    private static Configuration m_config;
+    private Configuration m_config;
 
     /**
      * Service that provides UI by actions
      */
-    private static ActionService m_actionService;
+    private ActionService m_actionService;
 
     /**
      * Controller that processes actions occurred in UI
      */
-    private GuiController m_guiController;
+    private static GuiContext m_guiContext;
+
+    private LoggerService m_logger;
+    private RMIConnection actionService;
 
     /**
-     *
      * @return
      */
-    public static ApplicationContext build() {
-        ApplicationContext ctx = null;
+    public static ApplicationContext build() throws InitializationException {
+        ApplicationContext ctx = new ApplicationContext();
         try {
-            m_config = Configuration.getInstance();
+            ctx.setLoggerService(new LoggerService());
 
+            ctx.setConfiguration(Configuration.getInstance());
 
-            m_actionService = new ActionService(m_config);
-            m_actionService.init();
+            ctx.setActionService(ActionService.build(ctx));
 
-
+            ctx.setGuiContext(GuiContext.build(ctx));
 
         } catch (InvalidPropertyException e) {
-            e.printStackTrace();
+            ctx.getLoggerService().logError("Error while property loading");
+            throw new InitializationException();
         }
 
-        return ;
+        return ctx;
+    }
+
+    public GuiContext getGuiContext() {
+        return m_guiContext;
+    }
+
+    public Configuration getConfiguration() {
+        return m_config;
+    }
+
+    public LoggerService getLoggerService() {
+        return m_logger;
+    }
+
+    private void setLoggerService(LoggerService loggerService) {
+        this.m_logger = loggerService;
+    }
+
+
+    private void setConfiguration(Configuration configuration) {
+        this.m_config = configuration;
+    }
+
+    public void setActionService(ActionService actionService) {
+        this.m_actionService = actionService;
+    }
+
+    public void setGuiContext(GuiContext guiContext) {
+        this.m_guiContext = guiContext;
+    }
+
+    public ActionService getActionService() {
+        return m_actionService;
     }
 }

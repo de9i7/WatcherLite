@@ -1,4 +1,4 @@
-package com.tools.watcher.controller.model.filesystem;
+package com.tools.watcher.application.controller.model.filesystem;
 
 import org.apache.log4j.Logger;
 

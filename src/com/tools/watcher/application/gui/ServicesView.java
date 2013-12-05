@@ -1,4 +1,4 @@
-package com.tools.watcher.gui;
+package com.tools.watcher.application.gui;
 
 /**
  * Created with IntelliJ IDEA.
