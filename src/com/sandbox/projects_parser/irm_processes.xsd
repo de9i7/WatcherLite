@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+    <xs:element name="config"></xs:element>
+    <xs:complexType name="config">
+        <xs:sequence>
+            <xs:element name="config" maxOccurs="unbounded"
+                minOccurs="1">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+	<xs:element name="servers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="server" maxOccurs="unbounded"
+                    minOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="process" minOccurs="1"
+                                maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="model" minOccurs="1"
+                                                    maxOccurs="unbounded">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                    <xs:enumeration value="737"></xs:enumeration>
+                                                    <xs:enumeration value="747"></xs:enumeration>
+                                                    <xs:enumeration value="777"></xs:enumeration>
+                                                    <xs:enumeration value="747"></xs:enumeration>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="path" type="xs:string" use="required"></xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+
+
+</xs:schema>

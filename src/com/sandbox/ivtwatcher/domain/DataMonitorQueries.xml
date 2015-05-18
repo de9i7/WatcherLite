@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <!--  -->
+    <sql-query name="getProcessesList" read-only="true">
+        SELECT ETIPR_IVT_PROCESS_ID
+            ,ETTSK_TASK_ID
+            ,ETIPR_SERVER_NAME
+            ,ETIPR_PATH
+        FROM ET_IVT_PROCESS
+    </sql-query>
+
+</hibernate-mapping>

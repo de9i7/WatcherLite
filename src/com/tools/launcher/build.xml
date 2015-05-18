@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="BuildEtlProjectBER" default="build.all" basedir=".">
+
+    <property file="build.properties"/>
+    <property name="checkstyle.home" value="${basedir}/../Tools/Checkstyle"/>
+    <property name="test.data.dir" value="${test.dir}/data"/>
+    <property name="test.report.dir" value="${test.dir}/report"/>
+
+    <taskdef name="foreach" classname="net.sf.antcontrib.logic.ForEach">
+        <classpath>
+            <fileset file="./lib/ant-contrlib.jar"/>
+        </classpath>
+    </taskdef>
+
+
+
+    <!--Create folders-->
+    <target name="create.folders">
+        <delete dir="${test.dir}"/>
+    </target>
+
+    <target name="etl.prepare" description="Makes necessary directories">
+        <echo message="Deleting existing output directories.."/>
+        <!--delete dir="${output.dir}"/-->
+        <echo message="Making output directories..."/>
+        <mkdir dir="${output.etl.dir}"/>
+        <mkdir dir="${output.etl.dir}/bin" />
+        <mkdir dir="${output.etl.dir}/conf" />
+        <mkdir dir="${output.etl.dir}/lib" />
+        <mkdir dir="${output.etl.dir}/logs"/>
+        <touch file="${output.etl.dir}/logs/.logs"/>
+        <echo file="${output.etl.dir}/logs/.logs" message=".logs"/>
+        <mkdir dir="${output.etl.dir}/wrapper" />
+        <mkdir dir="${output.etl.dir}/jre" />
+    </target>
+
+    <target name="create.test.folders" depends="create.folders" if="isRunJUnit">
+        <mkdir dir="${test.data.dir}"/>
+        <mkdir dir="${test.report.dir}"/>
+    </target>
+
+    <target name="copy.contents" description="Copies etl module contents to the output directory">
+        <echo message="Copying etl module contents..." />
+        <echo message="Copying bat files..." />
+        <copy todir="${output.etl.dir}/bin">
+            <fileset dir="${basedir}/bin">
+                <include name="**/*.*" />
+                <exclude name="**/.svn/**"/>
+                <exclude name = "feed/feedToAdads.bat"/>
+            </fileset>
+        </copy>
+        <echo message="Copying config files..." />
+        <copy todir="${output.etl.dir}/conf">
+            <fileset dir="${basedir}/conf">
+                <include name="**/*.*" />
+                <exclude name="**/.svn/**"/>
+                <exclude name="feedAdads/**"/>
+            </fileset>
+        </copy>
+        <echo message="Copying libraries..." />
+        <copy todir="${output.etl.dir}/lib">
+            <fileset dir="${basedir}/lib">
+                <include name="**/*.*" />
+                <exclude name="**/.svn/**"/>
+                <exclude name="lib/ant-launcher.jar"/>
+            </fileset>
+        </copy>
+        <echo message="Copying wrapper..." />
+        <copy todir="${output.etl.dir}/wrapper">
+            <fileset dir="${basedir}/wrapper">
+                <include name="**/*.*" />
+                <exclude name="**/.svn/**"/>
+                <exclude name="**/translator/**"/>
+            </fileset>
+        </copy>
+        <unzip src="../Tools/jre/jre1.6.0_24.zip"
+                dest="${output.etl.dir}/jre">
+        </unzip>
+    </target>
+
+    <!-- Build all modules and checkstyle-->
+    <target name="build.all.checkstyle"  description="Builds all modules and runs checkstyle">
+        <antcall target = "build.all"/>
+        <antcall target = "checkstyle"/>
+    </target>
+
+    <target name="checkstyle"
+            description="Checks the style of the sources and reports issues">
+
+        <ant antfile="${checkstyle.home}/checkstyle.xml" inheritall="false">
+            <property name="result.file.path" value="${basedir}/${output.etl.dir}/.."/>
+        </ant>
+
+    </target>
+
+    <target name="clean.test.data" description="cleans test data">
+        <echo message="Cleaning up temporary test files..."/>
+        <delete>
+            <fileset dir="${test.data.dir}" includes="*.*"/>
+        </delete>
+    </target>
+
+    <target name="build.module.tests" description="builds tests for each module which have tests">
+        <echo message="Build JUnitTools module..."/>
+        <ant antfile="../Tools/JUnitTools/build.xml" inheritall="false">
+            <property name="param.out.dir" value="../"/>
+        </ant>
+        <echo message="Build module tests..." />
+        <subant inheritall="false" failonerror="false">
+            <fileset dir="${basedir}" includes="build_tests.xml" />
+            <fileset dir="${basedir}/U3DValidationRequestProcessor" includes="build_tests.xml" />
+        </subant>
+        <subant inheritall="false"
+                failonerror="false">
+            <fileset dir="${basedir}/commonBundles" includes="*/build_tests.xml" />
+        </subant>
+        <!--subant inheritall="false"
+                failonerror="false">
+            <fileset dir="${basedir}/OSGiBundlesRepository" includes="*/build_tests.xml" />
+        </subant-->
+        <subant inheritall="false"
+                failonerror="false">
+            <fileset dir="${basedir}/translator" includes="*/build_tests.xml" />
+        </subant>
+        <subant inheritall="false"
+                failonerror="false">
+            <fileset dir="${basedir}/feed" includes="*/build_tests.xml" />
+        </subant>
+        <subant inheritall="false"
+                failonerror="false">
+            <fileset dir="${basedir}/tools" includes="*/build_tests.xml" />
+        </subant>
+        <subant inheritall="false" failonerror="false">
+            <fileset dir="${basedir}/../Tools" includes="*/build_tests.xml" />
+        </subant>
+
+        <!-- Delete test classes -->
+        <delete dir="${test.dir}/classes" />
+    </target>
+
+    <target name="test.report">
+        <echo message="creating test reports..."/>
+        <antcall target="build.module.tests" />
+        <junitreport todir="${test.data.dir}">
+            <fileset dir="${test.data.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <!--report format="frames" todir="${test.report.dir}"/-->
+            <report format="frames" styledir="${basedir}/../Tools/JUnitTools/xmlstyle" todir="${test.report.dir}"/>
+        </junitreport>
+    </target>
+
+    <!-- Build all modules and checkstyle-->
+    <target name="build.all.test" description="Builds all modules with JUnit tests and runs JUnits">
+        <antcall target="build.all">
+            <param name="isRunJUnit" value="true" />
+        </antcall>
+        <antcall target="create.test.folders">
+            <param name="isRunJUnit" value="true" />
+        </antcall>
+        <antcall target="clean.test.data"/>
+        <antcall target="test.report"/>
+    </target>
+
+
+
+    <target name="build.etl">
+        <ant antfile="./build_module.xml" inheritall="false">
+            <property name="jar.name" value="etl"/>
+        </ant>
+    </target>
+
+    <!-- This target is never used. beRetranslation is building from it's own build.xml -->
+    <target name="build.beRetranslation">
+        <ant antfile="./build_module.xml" inheritall="false">
+            <property name="jar.name" value="beRetranslation"/>
+            <property name="component" value="beRetranslation"/>
+        </ant>
+    </target>
+
+    <!-- Build all modules -->
+    <target name="build.all"  description="Builds all modules" depends="">
+        <echo message="Build all modules..."/>
+
+        <delete dir ="${output.etl.dir}"/>
+
+        <antcall target="etl.prepare"/>
+
+        <antcall target="build.etl"/>
+
+        <antcall target="copy.contents"/>
+
+        <ant antfile="./tools/beRetranslation/build.xml" inheritall="false"/>
+
+   </target>
+
+</project>

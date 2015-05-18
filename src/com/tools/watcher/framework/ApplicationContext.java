@@ -1,13 +1,13 @@
 package com.tools.watcher.framework;
 
+import javax.management.remote.rmi.RMIConnection;
+
 import com.tools.watcher.framework.action.api.ActionService;
 import com.tools.watcher.framework.configuration.Configuration;
 import com.tools.watcher.framework.context.GuiContext;
 import com.tools.watcher.framework.exceptions.InitializationException;
 import com.tools.watcher.framework.exceptions.InvalidPropertyException;
 import com.tools.watcher.framework.logger.LoggerService;
-
-import javax.management.remote.rmi.RMIConnection;
 
 /**
  * This class contains primary framework services instances.
@@ -45,7 +45,8 @@ public class ApplicationContext {
 
             ctx.setActionService(ActionService.build(ctx));
 
-            ctx.setGuiContext(GuiContext.build(ctx));
+            // TODO: Not needed
+//            ctx.setGuiContext(GuiContext.build(ctx));
 
         } catch (InvalidPropertyException e) {
             ctx.getLoggerService().logError("Error while property loading");

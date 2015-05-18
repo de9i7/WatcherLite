@@ -14,12 +14,17 @@ public class TypesTest {
     public static int LOAD_PORTION = 60;
 
     private List<String> queue = new ArrayList<String>();
+    private int some;
 
     public static void main(String[] args) {
         new TypesTest().run();
     }
 
     private boolean run() {
+
+        some += 5;
+        System.out.println(some);
+
         String testItem = new String("Tst");
 
         queue = new ArrayList<String>();
@@ -38,6 +43,8 @@ public class TypesTest {
         queue.remove(testItem);
 
         System.out.println(queue);
+
         return queue.size() > LOAD_PORTION * 0.1f;
+
     }
 }

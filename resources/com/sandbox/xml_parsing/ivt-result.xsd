@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="ivt-conn">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="result-code" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:int">
+                            <xs:minInclusive value="-1"/>
+                            <xs:maxInclusive value="2"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:choice>
+                    <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
