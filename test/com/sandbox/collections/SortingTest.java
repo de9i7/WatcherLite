@@ -8,6 +8,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created by DKachurovskiy on 9/19/2014.
+ * @author DKachurovskiy
  */
 public class SortingTest {
 
